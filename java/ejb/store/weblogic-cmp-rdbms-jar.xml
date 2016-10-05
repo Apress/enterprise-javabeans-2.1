@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE weblogic-rdbms-jar PUBLIC "-//BEA Systems, Inc.//DTD WebLogic 6.0.0 EJB RDBMS Persistence//EN" "http://www.bea.com/servers/wls600/dtd/weblogic-rdbms20-persistence-600.dtd">
+
+<weblogic-rdbms-jar>
+
+  <weblogic-rdbms-bean>
+    <ejb-name>ItemLocal</ejb-name>
+    <data-source-name>postgres</data-source-name>
+    <table-name>items</table-name>
+    <field-map>
+      <cmp-field>id</cmp-field>
+      <dbms-column>id</dbms-column>
+    </field-map>
+    <field-map>
+      <cmp-field>description</cmp-field>
+      <dbms-column>description</dbms-column>
+    </field-map>
+    <field-map>
+      <cmp-field>supplier</cmp-field>
+      <dbms-column>supplier</dbms-column>
+    </field-map>
+  </weblogic-rdbms-bean>
+
+  <weblogic-rdbms-bean>
+    <ejb-name>RackLocal</ejb-name>
+    <data-source-name>postgres</data-source-name>
+    <table-name>racks</table-name>
+    <field-map>
+      <cmp-field>id</cmp-field>
+      <dbms-column>id</dbms-column>
+    </field-map>
+    <field-map>
+      <cmp-field>description</cmp-field>
+      <dbms-column>description</dbms-column>
+    </field-map>
+    <field-map>
+      <cmp-field>storeId</cmp-field>
+      <dbms-column>storeid</dbms-column>
+    </field-map>
+  </weblogic-rdbms-bean>
+
+  <weblogic-rdbms-bean>
+    <ejb-name>PositionLocal</ejb-name>
+    <data-source-name>postgres</data-source-name>
+    <table-name>positions</table-name>
+    <field-map>
+      <cmp-field>rackId</cmp-field>
+      <dbms-column>rackid</dbms-column>
+    </field-map>
+    <field-map>
+      <cmp-field>row</cmp-field>
+      <dbms-column>prow</dbms-column>
+    </field-map>
+    <field-map>
+      <cmp-field>column</cmp-field>
+      <dbms-column>pcolumn</dbms-column>
+    </field-map>
+    <field-map>
+      <cmp-field>itemId</cmp-field>
+      <dbms-column>itemid</dbms-column>
+    </field-map>
+    <field-map>
+      <cmp-field>quantity</cmp-field>
+      <dbms-column>quantity</dbms-column>
+    </field-map>
+  </weblogic-rdbms-bean>
+
+  <weblogic-rdbms-bean>
+    <ejb-name>Store</ejb-name>
+    <data-source-name>postgres</data-source-name>
+    <table-name>stores</table-name>
+    <field-map>
+      <cmp-field>id</cmp-field>
+      <dbms-column>id</dbms-column>
+    </field-map>
+    <field-map>
+      <cmp-field>name</cmp-field>
+      <dbms-column>name</dbms-column>
+    </field-map>
+  </weblogic-rdbms-bean>
+
+  <weblogic-rdbms-relation>
+    <relation-name>Position-Item</relation-name>
+      <weblogic-relationship-role>
+        <relationship-role-name>position-has-item</relationship-role-name>
+          <column-map>
+            <foreign-key-column>itemid</foreign-key-column>
+            <key-column>id</key-column>
+          </column-map>
+      </weblogic-relationship-role>
+  </weblogic-rdbms-relation>
+
+  <weblogic-rdbms-relation>
+    <relation-name>Rack-Position</relation-name>
+      <!-- weblogic-relationship-role>
+        <relationship-role-name>rack-has-positions</relationship-role-name>
+          <column-map>
+            <foreign-key-column>rackid</foreign-key-column>
+            <key-column>id</key-column>
+          </column-map>
+      </weblogic-relationship-role -->
+      <weblogic-relationship-role>
+        <relationship-role-name>position-belongs-to-rack</relationship-role-name>
+          <column-map>
+            <foreign-key-column>rackid</foreign-key-column>
+            <key-column>id</key-column>
+          </column-map>
+      </weblogic-relationship-role>
+  </weblogic-rdbms-relation>
+
+  <weblogic-rdbms-relation>
+    <relation-name>Store-Rack</relation-name>
+      <weblogic-relationship-role>
+        <relationship-role-name>rack-belongs-to-store</relationship-role-name>
+          <column-map>
+            <foreign-key-column>storeid</foreign-key-column>
+            <key-column>id</key-column>
+          </column-map>
+      </weblogic-relationship-role>
+  </weblogic-rdbms-relation>
+
+  <create-default-dbms-tables>False</create-default-dbms-tables>
+
+</weblogic-rdbms-jar>

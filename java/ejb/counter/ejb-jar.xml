@@ -1,0 +1,70 @@
+<?xml version="1.0" ?>
+<!DOCTYPE ejb-jar PUBLIC "-//Sun Microsystems, Inc.//DTD Enterprise JavaBeans 2.0//EN" "http://java.sun.com/j2ee/dtds/ejb-jar_2_0.dtd">
+
+<ejb-jar>
+
+  <description>
+    Dieser Deployment-Deskriptor enthaelt Informationen
+    ueber die Entity-Bean Counter.
+  </description>
+
+  <enterprise-beans>
+    <entity>
+      <ejb-name>Counter</ejb-name>
+      <home>ejb.counter.CounterHome</home>
+      <remote>ejb.counter.Counter</remote>
+      <ejb-class>ejb.counter.CounterBean</ejb-class>
+      <persistence-type>Container</persistence-type>
+      <prim-key-class>java.lang.String</prim-key-class>
+      <reentrant>False</reentrant>
+      <cmp-version>2.x</cmp-version>
+      <abstract-schema-name>CounterBean</abstract-schema-name>
+      <cmp-field>
+        <description>Die Id des Zaehlers</description>
+        <field-name>counterId</field-name>
+      </cmp-field>
+      <cmp-field>
+        <description>Der Wert des Zaehlers</description>
+        <field-name>counterValue</field-name>
+      </cmp-field>
+      <primkey-field>counterId</primkey-field>
+      <query>
+        <query-method>
+          <method-name>ejbSelectAllCounterIds</method-name>
+          <method-params>
+          </method-params>
+        </query-method>
+        <ejb-ql>
+          SELECT DISTINCT cb.counterId FROM CounterBean AS cb 
+        </ejb-ql>
+      </query>
+    </entity>
+  </enterprise-beans>
+
+  <assembly-descriptor>
+    <security-role>
+      <description> Die Rolle Client
+      </description>
+      <role-name>client</role-name>
+    </security-role>
+    <method-permission>
+      <role-name>client</role-name>
+      <method>
+        <ejb-name>Counter</ejb-name>
+        <method-name>*</method-name>
+      </method>
+    </method-permission>
+    <container-transaction>
+      <method>
+        <ejb-name>Counter</ejb-name>
+        <method-name>inc</method-name>
+      </method>
+      <method>
+        <ejb-name>Counter</ejb-name>
+        <method-name>dec</method-name>
+      </method>
+      <trans-attribute>Required</trans-attribute>
+    </container-transaction>
+  </assembly-descriptor>
+
+</ejb-jar>

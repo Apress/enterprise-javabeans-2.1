@@ -1,0 +1,22 @@
+<?xml version="1.0" ?>
+<abstract-schema>
+  <name>AccountBean</name>
+  <data-source>
+    <name>test-db</name>
+    <type>oracle</type>
+  </data-source>
+  <table-name>account</table-name>
+  <field-mapping>
+    <bean-field>accountNumber</bean-field>
+    <column>acno</column>
+  </field-mapping>
+  <field-mapping>
+    <bean-field>accountDescription</bean-field>
+    <column>acdesc</column>
+  </field-mapping>
+  <field-mapping>
+    <bean-field>accountBalance</bean-field>
+    <column>acbal</column>
+  </field-mapping>
+</abstract-schema>
+

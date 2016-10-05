@@ -1,0 +1,32 @@
+<!DOCTYPE ejb-jar PUBLIC '-//Sun Microsystems, Inc.//DTD Enterprise JavaBeans 2.0//EN' 'http://java.sun.com/j2ee/dtds/ejb-jar_2_0.dtd'>
+<ejb-jar>
+ <enterprise-beans>
+   <message-driven>
+     <ejb-name>loggerBean</ejb-name>
+     <ejb-class>ejb.logger.LoggerBean</ejb-class>
+     <transaction-type>Container</transaction-type>
+     <message-driven-destination>
+       <destination-type>javax.jms.Queue</destination-type>
+     </message-driven-destination>
+     <env-entry>
+       <env-entry-name>ds-name</env-entry-name>
+       <env-entry-type>java.lang.String</env-entry-type>
+       <env-entry-value>postgres</env-entry-value>
+     </env-entry>
+     <security-identity>
+       <run-as>
+         <role-name>Logger</role-name>
+       </run-as>
+     </security-identity>
+   </message-driven>
+ </enterprise-beans>
+
+ <assembly-descriptor>
+   <security-role>
+     <description> Die Rolle Logger </description>
+     <role-name>Logger</role-name>
+   </security-role> 
+ </assembly-descriptor>
+
+</ejb-jar>
+

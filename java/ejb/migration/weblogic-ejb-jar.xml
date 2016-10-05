@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE weblogic-ejb-jar PUBLIC "-//BEA Systems, Inc.//DTD WebLogic 6.0.0 EJB//EN" "http://www.bea.com/servers/wls600/dtd/weblogic-ejb-jar.dtd" >
+
+
+<weblogic-ejb-jar>
+
+  <weblogic-enterprise-bean>
+    <ejb-name>Migration</ejb-name>
+    <stateless-session-descriptor>
+      <pool>
+        <max-beans-in-free-pool>10</max-beans-in-free-pool>
+      </pool>
+    </stateless-session-descriptor>
+    <reference-descriptor>
+      <resource-description>
+        <res-ref-name>jdbc/Migration</res-ref-name>
+        <jndi-name>postgres</jndi-name>
+      </resource-description>
+    </reference-descriptor>
+    <jndi-name>Migration</jndi-name>
+  </weblogic-enterprise-bean>
+
+</weblogic-ejb-jar>

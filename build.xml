@@ -1,0 +1,421 @@
+<?xml version="1.0" ?>
+
+<project name="ejb-book" default="usage" basedir=".">
+
+
+  <!-- Properties -->
+
+
+    <!-- Directories and path-names (no changes necessary)
+         ================== -->
+    <property name="srcdir"    value="java"/>
+    <property name="targetdir" value="classes"/>
+    <property name="libdir"    value="lib"/>
+    <property name="testdir"   value="tests"/>
+
+
+    <!-- AppServer Specific settings.
+         If you want to use a later or different version (e.g.
+         to test EJB 2.1 features),
+         modify these setting accordingly.
+         ============================================ -->
+        <!-- The root-directory of the application server -->
+    <property name="app_server_root" value="/opt/bea/wlserver6.1"/>
+        <!-- The lib-directory of the application server -->
+    <property name="app_server_lib"  value="${app_server_root}/lib"/>
+        <!-- The name of the jar-file that contains the ejb compiler
+             and the ejb api -->
+    <property name="app_server_jar"  value="weblogic.jar"/>
+        <!-- The classname of the ejb compiler -->
+    <property name="ejbc"  value="weblogic.ejbc"/>
+
+
+    <!-- log4j-lib (no changes necessary)
+         ======================= -->
+    <property name="log4j_lib" value="log4j.jar"/>
+
+
+    <!-- JDBC Drivers
+         Depending on what database you want to use,
+         chance these setting accordingly.
+         ================================== -->
+        
+        <!-- the jar file containing the JDBC driver 
+             note: the weblogic.jar file of the weblogic distribution
+                   usually contains the oracle jdbc drivers.
+          -->
+    <property name="jdbc.lib" value="/usr/share/pgsql/jdbc7.1-1.2.jar"/>
+    <!-- property name="jdbc.lib" value="/usr/share/oracle/classes12.zip"/ -->
+
+        <!-- the classname of the JDBC driver -->
+    <property name="jdbc.driver" value="org.postgresql.Driver"/>
+    <!-- property name="jdbc.driver" value="oracle.jdbc.driver.OracleDriver"/ -->
+
+        <!-- JDBC URL -->
+    <property name="jdbc.url" value="jdbc:postgresql://localhost/postgres"/>
+    <!-- property name="jdbc.url" value="jdbc:oracle:thin:@<hostname>:<port>:<db-name>"/ -->
+
+        <!-- User Name-->
+    <property name="jdbc.user" value="postgres"/>
+
+        <!-- Password -->
+    <property name="jdbc.pwd" value="postgres"/>
+
+        <!-- this property points to the directory, that contains the scripts 
+             for creating the database objects. Make this property point to the
+             directory that works with your database. If none of them work, copy
+             the scripts into a new directory, make them work with your database
+             and change this property to point to the new directory.
+          --> 
+    <property name="dbdir" value="db/postgres"/>
+
+
+  <!-- Build targets -->
+
+
+    <!-- echo's a usage message (no changes necessary)
+         ======================= -->
+    <target name="usage">
+        <echo message="Verfuegbare Targets sind:"/>
+        <echo message="compile  : Compile"/>
+        <echo message="clean    : Clean"/>
+        <echo message="setup_db : (Re-)Initialise the Database"/>
+        <echo message="runtests : run Testcases"/>
+        <echo message="run_storeclient   : Start Store-Bean-Client"/>
+        <echo message="deploy_account    : Deploy the BankAccountBean"/>
+        <echo message="deploy_part       : Deploy the PartBean"/>
+        <echo message="deploy_logger     : Deploy the  LoggerBean"/>
+        <echo message="deploy_counter    : Deploy the  CounterBean"/>
+        <echo message="deploy_counterBmp : Deploy the  CounterBean"/>
+        <echo message="deploy_exchangeSL : Deploy the  EuroExchangeBean (stateless)"/>
+        <echo message="deploy_exchangeSF : Deploy the  EuroExchangeBean (stateful)"/>
+        <echo message="deploy_migration  : Deploy the  Migration Bean"/>
+        <echo message="deploy_supplychain: Deploy the Stock- and ProducerBean"/>
+        <echo message="deploy_store      : Deploy the  Store-Bean"/>
+        <echo message="deploy_allbeans   : Deploy all the  Enterprise-Beans"/>
+    </target>
+
+    <!-- empties the classes directory (no changes necessary)
+         ============================-->
+    <target name="clean">
+        <delete dir="${targetdir}" includeEmptyDirs="true"/>
+        <mkdir dir="${targetdir}"/>
+    </target>
+
+    <!-- compile all sources (no changes necessary)
+         ======================= -->
+    <target name="compile">
+        <javac destdir="${targetdir}" srcdir="java" includes="**/*.java" excludes="**/payroll/**">
+            <classpath>
+                <pathelement path="${targetdir}"/>
+                <pathelement location="${libdir}/${log4j_lib}"/>
+                <pathelement location="${app_server_lib}/${app_server_jar}"/>
+            </classpath>
+        </javac>
+    </target>
+
+    <!-- installs all database objects (no changes necessary)
+         ================================= -->
+    <target name="setup_db">
+        <java classname="db.util.SetupDB" fork="yes">
+            <jvmarg value="-Djdbc.drivers=${jdbc.driver}"/>
+            <jvmarg value="-Djdbc.url=${jdbc.url}"/>
+            <jvmarg value="-Djdbc.user=${jdbc.user}"/>
+            <jvmarg value="-Djdbc.pwd=${jdbc.pwd}"/>
+            <arg value="${dbdir}"/>
+            <classpath>
+                <pathelement path="${targetdir}"/>
+                <pathelement location="${jdbc.lib}"/>
+            </classpath>
+        </java>
+    </target>
+
+    <!-- runs the test suite (no changes necessary)
+         ======================== -->
+    <target name="runtests">
+        <java classname="ejb.test.EJBTest" dir="${testdir}" fork="yes">
+            <arg value="test.properties"/>
+            <classpath>
+                <pathelement path="${testdir}"/>
+                <pathelement path="${targetdir}"/>
+                <pathelement location="${libdir}/${log4j_lib}"/>
+                <pathelement location="${app_server_lib}/${app_server_jar}"/>
+                <pathelement location="${jdbc.lib}"/>
+            </classpath>
+        </java>
+    </target>
+
+    <!-- runs the store client (no changes necessary)
+         ======================== -->
+    <target name="run_storeclient">
+        <java classname="ejb.store.client.StoreManager" dir="${testdir}" fork="yes">
+            <classpath>
+                <pathelement path="${targetdir}"/>
+                <pathelement location="${app_server_lib}/${app_server_jar}"/>
+            </classpath>
+        </java>
+    </target>
+
+
+    <!-- ejb deployment.
+         these targets are designed to work with the weblogic application server.
+         If you use a different application server, you need to modify these targets
+         accordingly.
+         Only the first of the targets is commented; all the deployment targets follow
+         the same schema.
+         =============================== -->
+
+
+    <!-- deploy all enterprise beans  -->
+    <target name="deploy_allbeans" depends="deploy_account,deploy_part,deploy_logger,deploy_counter,deploy_counterBmp,deploy_exchangeSL,deploy_exchangeSF,deploy_migration,deploy_supplychain,deploy_store">
+    </target>
+
+    <!-- Deploy Account-Bean -->
+    <target name="deploy_account">
+
+        <!-- remove existing jar files (clean-up) -->
+        <delete file="${libdir}/account_tmp.jar" quiet="true"/>
+        <delete file="${libdir}/account.jar" quiet="true"/>
+
+        <!-- create a temporary directory -->
+        <mkdir dir="ttt"/>
+
+        <!-- unpack the jog4j.jar into the temporary directory.
+             As the account-bean uses log4j, the libs have to go
+             into the ejb-jar of the account bean. We cannot rely
+             on the application server to support log4j.
+          -->
+        <unjar src="${libdir}/${log4j_lib}" dest="ttt"/>
+
+        <!-- create a temporary jar file containing the class-files and the deployment
+             descriptors of the account bean, utility classes used by the bean and
+             the log4j classes; this file is the input for the ejb compiler
+          -->
+        <jar jarfile="${libdir}/account_tmp.jar">
+            <metainf dir="${srcdir}/ejb/bankaccount" includes="*.xml"/>
+            <fileset dir="${targetdir}" includes="ejb/bankaccount/*.class"/>
+            <fileset dir="${targetdir}" includes="ejb/util/Lookup.class"/>
+            <fileset dir="ttt" includes="**/*.class"/>
+        </jar>
+
+        <!-- remove the temporary directory -->
+        <delete dir="ttt" includeEmptyDirs="true"/>
+
+        <!-- run the ejb compiler on the jar file created above.
+             the result is new jar file, that contains the container-classes
+             generated by the ejb compiler plus all the stuff from the input
+             jar file. The jar file created in this step will be installed in the
+             application server.
+          -->
+        <java classname="${ejbc}" fork="yes">
+            <arg value="${libdir}/account_tmp.jar"/>
+            <arg value="${libdir}/account.jar"/>
+            <classpath>
+                <pathelement location="${app_server_lib}/${app_server_jar}"/>
+            </classpath>
+        </java>
+
+        <!-- remove the tempary jar file (input of the ejb compiler) -->
+        <delete file="${libdir}/account_tmp.jar" quiet="true"/>
+    </target>
+
+    <!-- Deploy Part-Bean
+         (description see Account-Bean)
+       -->
+    <target name="deploy_part">
+        <delete file="${libdir}/part_tmp.jar" quiet="true"/>
+        <delete file="${libdir}/part.jar" quiet="true"/>
+        <mkdir dir="ttt"/>
+        <unjar src="${libdir}/${log4j_lib}" dest="ttt"/>
+        <jar jarfile="${libdir}/part_tmp.jar">
+            <metainf dir="${srcdir}/ejb/part" includes="*.xml"/>
+            <fileset dir="${targetdir}" includes="ejb/part/*.class"/>
+            <fileset dir="${targetdir}" includes="ejb/util/Lookup.class"/>
+            <fileset dir="ttt" includes="**/*.class"/>
+        </jar>
+        <delete dir="ttt" includeEmptyDirs="true"/>
+        <java classname="${ejbc}" fork="yes">
+            <arg value="${libdir}/part_tmp.jar"/>
+            <arg value="${libdir}/part.jar"/>
+            <classpath>
+                <pathelement location="${app_server_lib}/${app_server_jar}"/>
+            </classpath>
+        </java>
+        <delete file="${libdir}/part_tmp.jar" quiet="true"/>
+    </target>
+
+    <!-- Deploy Counter-Bean
+         (description see Account-Bean) 
+      -->
+    <target name="deploy_counter">
+        <delete file="${libdir}/counter_tmp.jar" quiet="true"/>
+        <delete file="${libdir}/counter.jar" quiet="true"/>
+        <jar jarfile="${libdir}/counter_tmp.jar">
+            <metainf dir="${srcdir}/ejb/counter" includes="*.xml"/>
+            <fileset dir="${targetdir}" includes="ejb/counter/*.class"/>
+            <fileset dir="${targetdir}" includes="ejb/util/Lookup.class"/>
+        </jar>
+        <java classname="${ejbc}" fork="yes">
+            <arg value="${libdir}/counter_tmp.jar"/>
+            <arg value="${libdir}/counter.jar"/>
+            <classpath>
+                <pathelement location="${app_server_lib}/${app_server_jar}"/>
+            </classpath>
+        </java>
+        <delete file="${libdir}/counter_tmp.jar" quiet="true"/>
+    </target>
+    
+    <!-- Deploy Counter-Bean (BMP)
+         (description see Account-Bean)
+      -->
+    <target name="deploy_counterBmp">
+        <delete file="${libdir}/counterBmp_tmp.jar" quiet="true"/>
+        <delete file="${libdir}/counterBmp.jar" quiet="true"/>
+        <jar jarfile="${libdir}/counterBmp_tmp.jar">
+            <metainf dir="${srcdir}/ejb/counterBmp" includes="*.xml"/>
+            <fileset dir="${targetdir}" includes="ejb/counterBmp/*.class"/>
+        </jar>
+        <java classname="${ejbc}" fork="yes">
+            <arg value="${libdir}/counterBmp_tmp.jar"/>
+            <arg value="${libdir}/counterBmp.jar"/>
+            <classpath>
+                <pathelement location="${app_server_lib}/${app_server_jar}"/>
+            </classpath>
+        </java>
+        <delete file="${libdir}/counterBmp_tmp.jar" quiet="true"/>
+    </target>
+
+    <!-- Deploy Logger-Bean
+         (description see Account-Bean)
+      -->
+    <target name="deploy_logger">
+        <delete file="${libdir}/logger_tmp.jar" quiet="true"/>
+        <delete file="${libdir}/logger.jar" quiet="true"/>
+        <mkdir dir="ttt"/>
+        <unjar src="${libdir}/${log4j_lib}" dest="ttt"/>
+        <jar jarfile="${libdir}/logger_tmp.jar">
+            <metainf dir="${srcdir}/ejb/logger" includes="*.xml"/>
+            <fileset dir="${targetdir}" includes="ejb/logger/*.class"/>
+            <fileset dir="${targetdir}" includes="ejb/util/*.class"/>
+            <fileset dir="${targetdir}" includes="ejb/event/*.class"/>
+            <fileset dir="${targetdir}" includes="ejb/util/Lookup.class"/>
+            <fileset dir="ttt" includes="**/*.class"/>
+        </jar>
+        <delete dir="ttt" includeEmptyDirs="true"/>
+        <java classname="${ejbc}" fork="yes">
+            <arg value="${libdir}/logger_tmp.jar"/>
+            <arg value="${libdir}/logger.jar"/>
+            <classpath>
+                <pathelement location="${libdir}/${log4j_lib}"/>
+                <pathelement location="${app_server_lib}/${app_server_jar}"/>
+            </classpath>
+        </java>
+        <delete file="${libdir}/logger_tmp.jar" quiet="true"/>
+    </target>
+
+    <!-- Deploy Exchange-Bean (STATELESS)
+         (description see Account-Bean)
+      -->
+    <target name="deploy_exchangeSL">
+        <delete file="${libdir}/exchangeSL_tmp.jar" quiet="true"/>
+        <delete file="${libdir}/exchangeSL.jar" quiet="true"/>
+        <jar jarfile="${libdir}/exchangeSL_tmp.jar">
+            <metainf dir="${srcdir}/ejb/exchangeSL" includes="*.xml"/>
+            <fileset dir="${targetdir}" includes="ejb/exchangeSL/*.class"/>
+            <fileset dir="${targetdir}" includes="ejb/util/Lookup.class"/>
+        </jar>
+        <java classname="${ejbc}" fork="yes">
+            <arg value="${libdir}/exchangeSL_tmp.jar"/>
+            <arg value="${libdir}/exchangeSL.jar"/>
+            <classpath>
+                <pathelement location="${app_server_lib}/${app_server_jar}"/>
+            </classpath>
+        </java>
+        <delete file="${libdir}/exchangeSL_tmp.jar" quiet="true"/>
+    </target>
+
+    <!-- Deploy Exchange-Bean (STATEFUL)
+         (description see Account-Bean)
+      -->
+    <target name="deploy_exchangeSF">
+        <delete file="${libdir}/exchangeSF_tmp.jar" quiet="true"/>
+        <delete file="${libdir}/exchangeSF.jar" quiet="true"/>
+        <jar jarfile="${libdir}/exchangeSF_tmp.jar">
+            <metainf dir="${srcdir}/ejb/exchangeSF" includes="*.xml"/>
+            <fileset dir="${targetdir}" includes="ejb/exchangeSF/*.class"/>
+            <fileset dir="${targetdir}" includes="ejb/util/Lookup.class"/>
+        </jar>
+        <java classname="${ejbc}" fork="yes">
+            <arg value="${libdir}/exchangeSF_tmp.jar"/>
+            <arg value="${libdir}/exchangeSF.jar"/>
+            <classpath>
+                <pathelement location="${app_server_lib}/${app_server_jar}"/>
+            </classpath>
+        </java>
+        <delete file="${libdir}/exchangeSF_tmp.jar" quiet="true"/>
+    </target>
+
+    <!-- Deploy Migration-Bean
+         (description see Account-Bean)
+      -->
+    <target name="deploy_migration">
+        <delete file="${libdir}/migration_tmp.jar" quiet="true"/>
+        <delete file="${libdir}/migration.jar" quiet="true"/>
+        <jar jarfile="${libdir}/migration_tmp.jar">
+            <metainf dir="${srcdir}/ejb/migration" includes="*.xml"/>
+            <fileset dir="${targetdir}" includes="ejb/migration/*.class"/>
+            <fileset dir="${targetdir}" includes="ejb/util/Lookup.class"/>
+        </jar>
+        <java classname="${ejbc}" fork="yes">
+            <arg value="${libdir}/migration_tmp.jar"/>
+            <arg value="${libdir}/migration.jar"/>
+            <classpath>
+                <pathelement location="${app_server_lib}/${app_server_jar}"/>
+            </classpath>
+        </java>
+        <delete file="${libdir}/migration_tmp.jar" quiet="true"/>
+    </target>
+
+    <!-- Deploy Migration-Beans
+         (description see Account-Bean)
+      -->
+    <target name="deploy_supplychain">
+        <delete file="${libdir}/supplychain_tmp.jar" quiet="true"/>
+        <delete file="${libdir}/supplychain.jar" quiet="true"/>
+        <jar jarfile="${libdir}/supplychain_tmp.jar">
+            <metainf dir="${srcdir}/ejb/supplychain" includes="*.xml"/>
+            <fileset dir="${targetdir}" includes="ejb/supplychain/**/*.class"/>
+            <fileset dir="${targetdir}" includes="ejb/util/Lookup.class"/>
+        </jar>
+        <java classname="${ejbc}" fork="yes">
+            <arg value="${libdir}/supplychain_tmp.jar"/>
+            <arg value="${libdir}/supplychain.jar"/>
+            <classpath>
+                <pathelement location="${app_server_lib}/${app_server_jar}"/>
+            </classpath>
+        </java>
+        <delete file="${libdir}/supplychain_tmp.jar" quiet="true"/>
+    </target>
+
+    <!-- Deploy Store-Beans
+         (description see Account-Bean)
+      -->
+    <target name="deploy_store">
+        <delete file="${libdir}/store_tmp.jar" quiet="true"/>
+        <delete file="${libdir}/store.jar" quiet="true"/>
+        <jar jarfile="${libdir}/store_tmp.jar">
+            <metainf dir="${srcdir}/ejb/store" includes="*.xml"/>
+            <fileset dir="${targetdir}" includes="ejb/store/**/*.class"/>
+            <fileset dir="${targetdir}" includes="ejb/util/**/*.class"/>
+        </jar>
+        <java classname="${ejbc}" fork="yes">
+            <arg value="${libdir}/store_tmp.jar"/>
+            <arg value="${libdir}/store.jar"/>
+            <classpath>
+                <pathelement location="${app_server_lib}/${app_server_jar}"/>
+            </classpath>
+        </java>
+        <delete file="${libdir}/store_tmp.jar" quiet="true"/>
+    </target>
+
+</project>

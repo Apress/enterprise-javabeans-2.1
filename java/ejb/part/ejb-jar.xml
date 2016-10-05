@@ -1,0 +1,68 @@
+<?xml version="1.0" ?>
+<!DOCTYPE ejb-jar PUBLIC "-//Sun Microsystems, Inc.//DTD Enterprise JavaBeans 2.0//EN" "http://java.sun.com/j2ee/dtds/ejb-jar_2_0.dtd">
+
+<ejb-jar>
+
+  <description>
+    Dieser Deployment-Deskriptor enthaelt Informationen
+    ueber die Entity-Bean Part.
+  </description>
+
+  <enterprise-beans>
+    <entity>
+      <ejb-name>Part</ejb-name>
+      <home>ejb.part.PartHome</home>
+      <remote>ejb.part.Part</remote>
+      <ejb-class>ejb.part.PartBean</ejb-class>
+      <persistence-type>Container</persistence-type>
+      <prim-key-class>java.lang.String</prim-key-class>
+      <reentrant>False</reentrant>
+      <cmp-version>2.x</cmp-version>
+      <abstract-schema-name>PartBean</abstract-schema-name>
+      <cmp-field>
+        <description>Die Teilenummer</description>
+        <field-name>partNumber</field-name>
+      </cmp-field>
+      <cmp-field>
+        <description>Die Teilebeschreibung</description>
+        <field-name>partDescription</field-name>
+      </cmp-field>
+      <cmp-field>
+        <description>Der Teilelieferant</description>
+        <field-name>supplierName</field-name>
+      </cmp-field>
+      <cmp-field>
+        <description>Der Teilepreis</description>
+        <field-name>price</field-name>
+      </cmp-field>
+      <cmp-field>
+        <description>Zeitstempel der letzten Änderung</description>
+        <field-name>lastModified</field-name>
+      </cmp-field>
+      <primkey-field>partNumber</primkey-field>
+    </entity>
+  </enterprise-beans>
+
+  <assembly-descriptor>
+    <security-role>
+      <description> Die Rolle Logistik
+      </description>
+      <role-name>logistics</role-name>
+    </security-role>
+    <method-permission>
+      <role-name>logistics</role-name>
+      <method>
+        <ejb-name>Part</ejb-name>
+        <method-name>*</method-name>
+      </method>
+    </method-permission>
+    <container-transaction>
+      <method>
+        <ejb-name>Part</ejb-name>
+        <method-name>setPartDetails</method-name>
+      </method>
+      <trans-attribute>Required</trans-attribute>
+    </container-transaction>
+  </assembly-descriptor>
+
+</ejb-jar>

@@ -1,0 +1,24 @@
+<!DOCTYPE weblogic-rdbms-jar PUBLIC 
+ '-//BEA Systems, Inc.//DTD WebLogic 6.0.0 EJB RDBMS Persistence//EN'
+ 'http://www.bea.com/servers/wls600/dtd/weblogic-rdbms-persistence.dtd'>
+<weblogic-rdbms-jar>
+  <weblogic-rdbms-bean>
+    <ejb-name>Stock</ejb-name>
+    <data-source-name>postgres</data-source-name>
+    <table-name>stock</table-name>
+
+    <field-map>
+      <cmp-field>stockId</cmp-field>
+      <dbms-column>stockid</dbms-column>
+    </field-map>
+    <field-map>
+      <cmp-field>stockVolume</cmp-field>
+      <dbms-column>volume</dbms-column>
+    </field-map>
+    <field-map>
+      <cmp-field>maxStockVolume</cmp-field>
+      <dbms-column>maxvolume</dbms-column>
+    </field-map>
+
+  </weblogic-rdbms-bean>
+</weblogic-rdbms-jar>

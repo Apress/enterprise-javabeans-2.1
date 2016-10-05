@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+ 
+ <!DOCTYPE weblogic-ejb-jar PUBLIC "-//BEA Systems, Inc.//DTD WebLogic 6.0.0 EJB//EN" "http://www.bea.com/servers/wls600/dtd/weblogic-ejb-jar.dtd" >
+  
+<weblogic-ejb-jar>
+  <weblogic-enterprise-bean>
+    <ejb-name>Exchange</ejb-name> 
+    <stateful-session-descriptor>
+      <stateful-session-cache>
+        <max-beans-in-cache>100</max-beans-in-cache>
+        <idle-timeout-seconds>600</idle-timeout-seconds>
+      </stateful-session-cache>
+      <lifecycle>
+        <passivation-strategy>default</passivation-strategy>
+      </lifecycle>
+      <persistent-store-dir>/opt/bea/store</persistent-store-dir>
+      <allow-concurrent-calls>false</allow-concurrent-calls>
+    </stateful-session-descriptor>
+    <reference-descriptor>
+      <resource-description>
+        <res-ref-name>jdbc/EuroDB</res-ref-name>
+        <jndi-name>postgres</jndi-name>
+      </resource-description>
+    </reference-descriptor>
+    <jndi-name>ExchangeSF</jndi-name>
+  </weblogic-enterprise-bean>
+  <security-role-assignment>
+    <role-name>setCurrency</role-name>
+    <principal-name>guest</principal-name>
+  </security-role-assignment>
+</weblogic-ejb-jar>

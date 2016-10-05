@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<!DOCTYPE weblogic-ejb-jar PUBLIC "-//BEA Systems, Inc.//DTD WebLogic 6.0.0 EJB//EN" "http://www.bea.com/servers/wls600/dtd/weblogic-ejb-jar.dtd" >
+<weblogic-ejb-jar>
+  <weblogic-enterprise-bean>
+    <ejb-name>Stock</ejb-name>
+    <entity-descriptor>
+      <entity-cache>    
+	<max-beans-in-cache>100</max-beans-in-cache>
+      </entity-cache>    
+      <persistence>
+	<persistence-type>
+	  <type-identifier>WebLogic_CMP_RDBMS</type-identifier>
+	  <type-version>6.0</type-version>
+	  <type-storage>META-INF/weblogic-cmp-rdbms-jar.xml</type-storage>
+	</persistence-type>
+	<persistence-use>
+	  <type-identifier>WebLogic_CMP_RDBMS</type-identifier>
+	  <type-version>6.0</type-version>
+	</persistence-use>
+      </persistence>
+    </entity-descriptor>
+    <jndi-name>Stock</jndi-name>
+  </weblogic-enterprise-bean>
+  <weblogic-enterprise-bean>
+    <ejb-name>Producer</ejb-name>
+    <stateful-session-descriptor>
+      <stateful-session-cache>
+        <max-beans-in-cache>100</max-beans-in-cache>
+        <idle-timeout-seconds>600</idle-timeout-seconds>
+      </stateful-session-cache>
+      <lifecycle>
+        <passivation-strategy>default</passivation-strategy>
+      </lifecycle>
+      <persistent-store-dir>/opt/bea/store</persistent-store-dir>
+      <allow-concurrent-calls>false</allow-concurrent-calls>
+    </stateful-session-descriptor>
+    <reference-descriptor>
+      <ejb-reference-description>
+        <ejb-ref-name>ejb/Stock</ejb-ref-name>
+        <jndi-name>Stock</jndi-name>
+      </ejb-reference-description>
+    </reference-descriptor>
+    <jndi-name>Producer</jndi-name>
+  </weblogic-enterprise-bean>
+</weblogic-ejb-jar>

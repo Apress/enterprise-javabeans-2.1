@@ -1,0 +1,44 @@
+<?xml version="1.0" ?>
+<!DOCTYPE ejb-jar PUBLIC "-//Sun Microsystems, Inc.//DTD Enterprise JavaBeans 2.0//EN" "http://java.sun.com/j2ee/dtds/ejb-jar_2_0.dtd">
+
+<ejb-jar>
+
+  <description>
+    Dieser Deployment-Deskriptor enthaelt Informationen
+    ueber die Session-Bean Exchange.
+  </description>
+
+  <enterprise-beans>
+    <session>
+      <ejb-name>Exchange</ejb-name>
+      <home>ejb.exchangeSF.EuroExchangeHome</home>
+      <remote>ejb.exchangeSF.EuroExchange</remote>
+      <ejb-class>ejb.exchangeSF.EuroExchangeBean</ejb-class>
+      <session-type>Stateful</session-type>
+      <transaction-type>Bean</transaction-type>
+      <resource-ref>
+        <description> Euro-Datenbank </description>
+        <res-ref-name>jdbc/EuroDB</res-ref-name>
+        <res-type>javax.sql.DataSource</res-type>
+        <res-auth>Container</res-auth>
+        <res-sharing-scope>Shareable</res-sharing-scope>
+      </resource-ref>
+    </session>
+  </enterprise-beans>
+
+  <assembly-descriptor>
+    <security-role>
+      <description> Die Rolle setCurrency
+      </description>
+      <role-name>setCurrency</role-name>
+    </security-role>
+    <method-permission>
+      <role-name>setCurrency</role-name>
+      <method>
+        <ejb-name>Exchange</ejb-name>
+        <method-name>*</method-name>
+      </method>
+    </method-permission>
+  </assembly-descriptor>
+
+</ejb-jar>
